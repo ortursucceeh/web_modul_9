@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List, Set
 from datetime import datetime
 
@@ -8,23 +9,24 @@ from bs4 import BeautifulSoup
 
 base_url = "http://quotes.toscrape.com"
 
-
-
 def get_quotes() -> List[dict]:
     response = requests.get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    quote_author = soup.select('div[class=quote] small[class=author]')
-    quote_text = soup.select('div[class=quote] span[class=text]')
-    quote_tags = soup.select('div[class=quote] div[class=tags] meta')
+    quotes_info = soup.select('div[class=quote]')
+    
+    
     quotes = []
 
-    for author, text, tags in zip(quote_author, quote_text, quote_tags):
+    for quote_descr in quotes_info:
+        quote_author = quote_descr.find('small', attrs={'class': 'author'}).text.strip()
+        quote_text = quote_descr.find('span', attrs={'class': 'text'}).text.split(',')
+        quote_tags = quote_descr.find('div', attrs={'class': 'tags'}).find('meta')['content'] 
+
         quote = {}
 
-        quote['tags'] = tags['content'].split(',')
-        quote['author'] = author.text
-        print(author.text)
-        quote['quote'] = text.text
+        quote['tags'] = quote_tags
+        quote['author'] = quote_author
+        quote['quote'] = quote_text
 
         quotes.append(quote)
     
@@ -47,29 +49,27 @@ def get_authors(urls: Set[str]):
     for url in urls:
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
+        author_detail = soup.select('div[class=author-details]')[0]
         
+        fullname = author_detail.find('h3', attrs={'class': 'author-title'}).text.strip().split('\n')[0]
+        born_date = author_detail.find('span', attrs={'class': 'author-born-date'}).text.strip()
+        born_location = author_detail.find('span', attrs={'class': 'author-born-location'}).text.strip()
+        description = author_detail.find('div', attrs={'class': 'author-description'}).text.strip()
 
-        fullname = soup.select('h3[class=author-title]')
-        born_date = soup.select('span[class=author-born-date]')[0].text
-        born_location = soup.select('span[class=author-born-location]')[0].text
-        description = soup.select('div[class=author-description]')[0].text
         author = {}
         author['fullname'] = fullname
         author['born_date'] = datetime.strptime(born_date, "%B %d, %Y").isoformat()
         author['born_location'] = born_location
-        author['description'] = description.strip()
+        author['description'] = description
 
         authors.append(author)
 
     return authors
 
 def load_in_json(filename: str, data: List[dict]):
-    with open(filename, 'w', encoding='utf-8') as file:
-        json.dump(data, file)
+    with open(f'beautiful_soup/json_data/{filename}', 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False)
 
-
-
-    
 
 if __name__ == '__main__':
     quotes = get_quotes()
@@ -77,4 +77,4 @@ if __name__ == '__main__':
     authors = get_authors(urls)
     load_in_json('authors.json', authors)
     load_in_json('quotes.json', quotes)
-    # print(quotes)
+
