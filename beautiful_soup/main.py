@@ -22,17 +22,24 @@ def get_quotes() -> List[dict]:
         quotes.append(quote)
     
     return quotes
-    
 
-    # return content[0].find_all('span', attrs={'class': 'text'})[0].string
-    return quote_tags
 def get_url_authors():
-    pass
+    response = requests.get(base_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    author_links = soup.select('div[class=quote] span a')
+    urls = []
+    
+    for link in author_links:
+        urls.append(base_url + link['href'])
+
+    return urls
+
 
 def get_authors():
     pass
 
 if __name__ == '__main__':
     quotes = get_quotes()
-    print(quotes)
+    urls = get_url_authors()
+    print(urls)
     
