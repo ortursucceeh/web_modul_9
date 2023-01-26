@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "modul-9"
+version = "0.1.0"
+description = ""
+authors = ["ortursucceeh <109922331+ortursucceeh@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "modul_9"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+beautifulsoup4 = "^4.11.1"
+requests = "^2.28.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
