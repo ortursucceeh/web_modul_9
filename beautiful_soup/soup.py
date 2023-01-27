@@ -66,7 +66,7 @@ def get_authors(urls: Set[str]):
 
     return authors
 
-def load_in_json(filename: str, data: List[dict]):
+def store_in_json(filename: str, data: List[dict]):
     with open(f'beautiful_soup/json_data/{filename}', 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False)
 
@@ -75,6 +75,6 @@ if __name__ == '__main__':
     quotes = get_quotes()
     urls = get_url_authors()
     authors = get_authors(urls)
-    load_in_json('authors.json', authors)
-    load_in_json('quotes.json', quotes)
+    store_in_json('authors.json', authors)
+    store_in_json('quotes.json', quotes)
 
